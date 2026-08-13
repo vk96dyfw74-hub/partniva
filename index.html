@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Partniva — Connecting Projects. Powering Partnerships.</title>
+<meta name="theme-color" content="#071126">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./config.js"></script>
+<style>
+:root{--navy:#071126;--ink:#11182a;--muted:#697286;--line:#e7eaf1;--bg:#f7f8fb;--purple:#8158ef;--cyan:#18bfd0;--green:#20a25f;--amber:#946000;--shadow:0 12px 32px rgba(13,20,41,.08)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}button,input,select,textarea{font:inherit}button{cursor:pointer}.shell{width:min(1400px,calc(100% - 36px));margin:auto}
+.top{height:82px;background:var(--navy);color:#fff}.nav{height:100%;display:flex;align-items:center;gap:24px}.logo{font-size:38px;font-weight:950;background:linear-gradient(#8658ef,#17bfd0);-webkit-background-clip:text;color:transparent}.brand b{font-size:28px}.brand small{display:block;color:#d7ddea}.spacer{flex:1}.nav button{border:0;background:transparent;color:#fff}.adminBtn{padding:10px 14px!important;border-radius:9px!important;background:linear-gradient(90deg,#7658ef,#16bdd0)!important;font-weight:800}
+.hero{background:#fff;padding:38px 0}.hero h1{font-size:42px;margin:0 0 10px}.grad{background:linear-gradient(90deg,#8658ef,#18bfd0);-webkit-background-clip:text;color:transparent}.hero p{color:var(--muted);max-width:760px;line-height:1.5}.page{display:none}.page.active{display:block}
+.tabs{display:flex;gap:6px;margin-top:18px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px;width:max-content;max-width:100%;overflow:auto}.country{border:0;background:transparent;padding:9px 13px;border-radius:8px}.country.active{background:var(--navy);color:#fff}
+.search{margin-top:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:9px}.search input,.search select,.field{border:1px solid #dce1e9;border-radius:8px;padding:10px;background:#fff}.btn{border:1px solid #d7dde6;background:#fff;border-radius:8px;padding:9px 12px;font-weight:700}.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}.metric{background:#fff;border:1px solid var(--line);border-radius:11px;padding:13px}.metric b{font-size:22px;display:block}.metric span{font-size:11px;color:var(--muted)}.head{display:flex;justify-content:space-between;align-items:center}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.card{background:#fff;border:1px solid var(--line);border-radius:11px;padding:14px;display:flex;flex-direction:column}.card h3{margin:0}.cat{font-size:11px;color:var(--muted);margin-top:4px}.status{font-size:10px;font-weight:800;padding:5px 7px;border-radius:6px;float:right}.v{background:#e8f8ed;color:#15834c}.pv{background:#fff2d9;color:var(--amber)}.summary{font-size:12px;line-height:1.5;color:#5d687b;margin:10px 0}.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto}.chip{font-size:10px;background:#f3efff;color:#6d4eda;border-radius:6px;padding:5px 7px}.foot{border-top:1px solid #edf0f3;margin-top:10px;padding-top:8px;font-size:10px}.foot a{color:#4167dc}
+.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;margin:20px 0;box-shadow:var(--shadow)}.adminHead{display:flex;justify-content:space-between;align-items:center;gap:12px}.adminTools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.adminTools input{border:1px solid #dce1e9;border-radius:8px;padding:9px;min-width:240px}.danger{border-color:#efc5c5;color:#9a2727;background:#fff7f7}.success{background:#eaf8ef;color:#16764a;padding:10px;border-radius:8px;margin:10px 0}.adminStats{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0;color:var(--muted);font-size:12px}.adminStats b{color:var(--ink)}.table{width:100%;border-collapse:collapse;font-size:12px}.table th,.table td{padding:8px;border-bottom:1px solid #edf0f3;text-align:left}.empty{grid-column:1/-1;background:#fff;border:1px dashed #cad2dc;border-radius:11px;padding:40px;text-align:center;color:var(--muted)}.notice{background:#fff4d8;color:#7b5300;padding:10px;border-radius:8px;margin:10px 0}
+.modalBack{position:fixed;inset:0;background:#07112688;display:none;align-items:center;justify-content:center;padding:16px;z-index:100}.modalBack.open{display:flex}.modal{background:#fff;border-radius:12px;padding:18px;width:min(720px,100%);max-height:92vh;overflow:auto}.form{display:grid;grid-template-columns:1fr 1fr;gap:9px}.form .full{grid-column:1/-1}.form input,.form select,.form textarea{width:100%;border:1px solid #dce1e9;border-radius:8px;padding:9px}.form textarea{min-height:85px}
+@media(max-width:900px){.grid{grid-template-columns:1fr 1fr}.search{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.grid,.search,.form{grid-template-columns:1fr}.form .full{grid-column:1}.hero h1{font-size:32px}.nav small{display:none}}
+</style></head><body>
+<header class="top"><div class="shell nav"><div class="logo">P</div><div class="brand"><b>Partniva</b><small>Connecting Projects. Powering Partnerships.</small></div><div class="spacer"></div><button id="findNav">Find Partners</button><button id="shortNav">Shortlist</button><button class="adminBtn" id="adminNav">Admin</button></div></header>
+
+<section class="page active" id="findPage"><div class="hero"><div class="shell"><h1>Find the right <span class="grad">partners.</span><br>Deliver your <span class="grad">projects.</span></h1><p>Live European partner discovery powered by the Partniva contractor database.</p></div></div>
+<main class="shell"><div class="tabs" id="tabs"></div><div class="search"><input id="q" placeholder="Search company, pipework, DLC, commissioning…"><select id="type"><option value="">All Partner Types</option></select><select id="audit"><option value="">All Statuses</option><option>Verified</option><option>Partially Verified</option></select><select id="dc"><option value="">All DC Experience</option><option>Yes</option><option>Unknown</option><option>No</option></select><button class="btn primary" id="searchBtn">Search</button></div><div class="metrics"><div class="metric"><b id="count">0</b><span>Matches</span></div><div class="metric"><b id="verified">0</b><span>Verified</span></div><div class="metric"><b id="partial">0</b><span>Partially Verified</span></div><div class="metric"><b id="saved">0</b><span>Shortlisted</span></div></div><div class="head"><h2 id="found"></h2><button class="btn" id="clear">Clear</button></div><div class="grid" id="grid"></div></main></section>
+
+<section class="page" id="shortPage"><main class="shell"><div class="panel"><h1>Shortlist</h1><div class="grid" id="shortGrid"></div></div></main></section>
+
+<section class="page" id="adminPage"><main class="shell"><div class="panel" id="loginPanel"><h1>Partniva Admin</h1><div id="setupNotice"></div><div class="form" style="max-width:440px"><input id="email" placeholder="Email"><input id="password" type="password" placeholder="Password"><button class="btn primary full" id="loginBtn">Sign in</button></div></div><div class="panel" id="adminPanel" style="display:none"><div class="adminHead"><div><h1>Contractor Admin</h1><small id="who"></small></div><div><button class="btn" id="logout">Sign out</button></div></div><div id="adminMsg"></div><div class="adminStats"><span><b id="adminTotal">0</b> total</span><span><b id="adminActive">0</b> active</span><span><b id="adminArchived">0</b> archived</span></div><div class="adminTools"><input id="adminSearch" placeholder="Search contractors…"><button class="btn primary" id="add">+ Add Contractor</button></div><div style="overflow:auto;margin-top:12px"><table class="table"><thead><tr><th>Company</th><th>Primary</th><th>Status</th><th>Countries</th><th>Active</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div></div></main></section>
+
+<div class="modalBack" id="back"><div class="modal"><div class="adminHead"><h2 id="title">Add Contractor</h2><button class="btn" id="close">×</button></div><div class="form"><input id="fc" placeholder="Company *"><input id="fu" placeholder="Source URL"><input id="fclass" placeholder="Partner class"><input id="fp" placeholder="Primary category"><input id="fs" placeholder="Secondary category"><select id="fa"><option>Verified</option><option>Partially Verified</option></select><select id="fd"><option>Unknown</option><option>Yes</option><option>No</option></select><input id="fh" placeholder="HQ / base"><input id="fco" placeholder="Countries: Portugal, Spain"><input class="full" id="fcoverage" placeholder="Evidenced coverage (e.g. Portugal; Spain; Europe)"><input class="full" id="ft" placeholder="Partner types, comma separated"><input class="full" id="fg" placeholder="Capability tags, comma separated"><textarea class="full" id="fsummary" placeholder="Capability summary"></textarea><textarea class="full" id="fdecision" placeholder="Audit decision / unknowns"></textarea><label><input type="checkbox" id="factive" checked> Active / public</label><button class="btn primary full" id="saveBtn">Save Contractor</button></div></div></div>
+
+<script>
+const C=window.PARTNIVA_CONFIG||{};
+const configured=C.supabaseUrl&&!C.supabaseUrl.includes("PASTE_")&&C.supabaseKey&&!C.supabaseKey.includes("PASTE_");
+const db=configured?supabase.createClient(C.supabaseUrl,C.supabaseKey):null;
+const COUNTRIES=["Portugal","Spain","France","Italy","Germany","Netherlands"];
+const TYPES=["Mechanical","Electrical","HVAC & Cooling","DLC / Liquid Cooling","Commissioning","Flushing & Water Treatment","ICT / Fibre","Fire Systems","BMS & Controls","Plant & Equipment Hire","Load Banks & Temporary Power","Logistics & Lifting","CSA / General Construction","Design & Engineering","Testing & Inspection"];
+let all=[],adminRows=[],country="Portugal",shortlist=new Set(JSON.parse(localStorage.getItem("partniva-v2-shortlist")||"[]")),editing=null;
+const $=x=>document.getElementById(x),norm=x=>(x||"").toString().toLowerCase(),esc=x=>(x||"").toString().replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+
+function show(id){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$(id).classList.add("active")}
+findNav.onclick=()=>show("findPage");
+shortNav.onclick=()=>{show("shortPage");renderShort()};
+adminNav.onclick=()=>{show("adminPage");session()};
+
+COUNTRIES.forEach(c=>tabs.insertAdjacentHTML("beforeend",`<button class="country ${c==="Portugal"?"active":""}" data-c="${c}">${c}</button>`));
+TYPES.forEach(t=>type.insertAdjacentHTML("beforeend",`<option>${t}</option>`));
+document.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-c]").forEach(x=>x.classList.remove("active"));b.classList.add("active");country=b.dataset.c;render()});
+
+async function load(){
+ if(!configured){grid.innerHTML='<div class="empty"><b>Supabase setup required.</b><br>Complete config.js.</div>';return}
+ const {data,error}=await db.from("contractors").select("*").eq("is_active",true).order("company");
+ if(error){grid.innerHTML=`<div class="empty">${esc(error.message)}</div>`;return}
+ all=data||[];render()
+}
+function filtered(){
+ const qq=norm(q.value.trim());
+ return all.filter(r=>(r.countries||[]).includes(country)
+  &&(!type.value||(r.partner_types||[]).includes(type.value))
+  &&(!audit.value||r.audit_outcome===audit.value)
+  &&(!dc.value||norm(r.data_centre_experience)===norm(dc.value))
+  &&(!qq||qq.split(/\s+/).some(w=>norm([r.company,r.primary_category,r.secondary_category,(r.partner_types||[]).join(" "),(r.capability_tags||[]).join(" "),r.capability_summary].join(" ")).includes(w))))
+}
+function card(r){
+ let chips=[...(r.partner_types||[]),...(r.capability_tags||[])].slice(0,5);
+ return `<article class="card"><div><span class="status ${r.audit_outcome==="Verified"?"v":"pv"}">${esc(r.audit_outcome)}</span><h3>${esc(r.company)}</h3><div class="cat">${esc(r.primary_category||"")}</div></div><div class="summary">${esc(r.capability_summary||"No summary.")}</div><div class="chips">${chips.map(x=>`<span class="chip">${esc(x)}</span>`).join("")}</div><div class="foot">${r.source_url?`<a href="${esc(r.source_url)}" target="_blank">Source ↗</a>`:""} <button class="btn" data-save="${r.id}">${shortlist.has(r.id)?"★ Saved":"☆ Shortlist"}</button></div></article>`
+}
+function wire(){
+ document.querySelectorAll("[data-save]").forEach(b=>b.onclick=()=>{shortlist.has(b.dataset.save)?shortlist.delete(b.dataset.save):shortlist.add(b.dataset.save);localStorage.setItem("partniva-v2-shortlist",JSON.stringify([...shortlist]));render();renderShort()})
+}
+function render(){
+ let r=filtered();count.textContent=r.length;verified.textContent=r.filter(x=>x.audit_outcome==="Verified").length;partial.textContent=r.filter(x=>x.audit_outcome==="Partially Verified").length;saved.textContent=shortlist.size;found.textContent=`${r.length} partners found`;grid.innerHTML=r.length?r.map(card).join(""):'<div class="empty">No matching partners.</div>';wire()
+}
+function renderShort(){let r=all.filter(x=>shortlist.has(x.id));shortGrid.innerHTML=r.length?r.map(card).join(""):'<div class="empty">Your shortlist is empty.</div>';wire()}
+searchBtn.onclick=render;[q,type,audit,dc].forEach(x=>x.addEventListener(x===q?"input":"change",render));clear.onclick=()=>{q.value="";type.value="";audit.value="";dc.value="";render()};
+
+async function session(){
+ setupNotice.innerHTML=configured?"":'<div class="notice">Complete config.js first.</div>';
+ if(!configured)return;
+ const {data:{session}}=await db.auth.getSession();
+ if(!session){loginPanel.style.display="block";adminPanel.style.display="none";return}
+ const {data:admin,error}=await db.from("admins").select("user_id").eq("user_id",session.user.id).maybeSingle();
+ if(error||!admin){
+   await db.auth.signOut();
+   loginPanel.style.display="block";adminPanel.style.display="none";
+   setupNotice.innerHTML='<div class="notice">This account is not authorised as a Partniva administrator.</div>';
+   return;
+ }
+ loginPanel.style.display="none";adminPanel.style.display="block";
+ who.textContent=session.user.email;
+ await adminLoad();
+}
+loginBtn.onclick=async()=>{
+ if(!configured)return;
+ loginBtn.disabled=true;loginBtn.textContent="Signing in…";
+ const {error}=await db.auth.signInWithPassword({email:email.value.trim(),password:password.value});
+ loginBtn.disabled=false;loginBtn.textContent="Sign in";
+ if(error)setupNotice.innerHTML=`<div class="notice">${esc(error.message)}</div>`;else session()
+};
+logout.onclick=async()=>{await db.auth.signOut();session()};
+
+function adminRender(){
+ const qq=norm(adminSearch.value.trim());
+ const data=adminRows.filter(r=>!qq||norm([r.company,r.primary_category,r.secondary_category,(r.countries||[]).join(" ")].join(" ")).includes(qq));
+ adminTotal.textContent=adminRows.length;
+ adminActive.textContent=adminRows.filter(x=>x.is_active).length;
+ adminArchived.textContent=adminRows.filter(x=>!x.is_active).length;
+ rows.innerHTML=data.map(r=>`<tr><td>${esc(r.company)}</td><td>${esc(r.primary_category||"")}</td><td>${esc(r.audit_outcome)}</td><td>${esc((r.countries||[]).join(", "))}</td><td>${r.is_active?"Yes":"Archived"}</td><td><button class="btn" data-edit="${r.id}">Edit</button> <button class="btn ${r.is_active?"danger":""}" data-toggle="${r.id}">${r.is_active?"Archive":"Restore"}</button></td></tr>`).join("")||'<tr><td colspan="6">No matching contractors.</td></tr>';
+ document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editor(adminRows.find(x=>x.id===b.dataset.edit)));
+ document.querySelectorAll("[data-toggle]").forEach(b=>b.onclick=()=>toggleArchive(adminRows.find(x=>x.id===b.dataset.toggle)));
+}
+async function adminLoad(){
+ const {data,error}=await db.from("contractors").select("*").order("company");
+ if(error){adminMsg.innerHTML=`<div class="notice">${esc(error.message)}</div>`;return}
+ adminRows=data||[];adminRender();
+}
+async function toggleArchive(r){
+ if(!r)return;
+ const action=r.is_active?"archive":"restore";
+ if(!confirm(`Are you sure you want to ${action} ${r.company}?`))return;
+ const {error}=await db.from("contractors").update({is_active:!r.is_active,updated_at:new Date().toISOString()}).eq("id",r.id);
+ if(error){adminMsg.innerHTML=`<div class="notice">${esc(error.message)}</div>`;return}
+ adminMsg.innerHTML=`<div class="success">${esc(r.company)} ${action==="archive"?"archived":"restored"}.</div>`;
+ await load();await adminLoad();
+}
+adminSearch.addEventListener("input",adminRender);
+function A(v){return v.split(",").map(x=>x.trim()).filter(Boolean)}
+function editor(r=null){
+ editing=r?.id||null;title.textContent=r?"Edit Contractor":"Add Contractor";fc.value=r?.company||"";fu.value=r?.source_url||"";fclass.value=r?.partner_class||"";fp.value=r?.primary_category||"";fs.value=r?.secondary_category||"";fa.value=r?.audit_outcome||"Partially Verified";fd.value=r?.data_centre_experience||"Unknown";fh.value=r?.hq_base||"";fco.value=(r?.countries||[]).join(", ");fcoverage.value=r?.evidenced_coverage||"";ft.value=(r?.partner_types||[]).join(", ");fg.value=(r?.capability_tags||[]).join(", ");fsummary.value=r?.capability_summary||"";fdecision.value=r?.audit_decision||"";factive.checked=r?.is_active??true;back.classList.add("open")
+}
+add.onclick=()=>editor();close.onclick=()=>back.classList.remove("open");
+saveBtn.onclick=async()=>{
+ let rec={company:fc.value.trim(),source_url:fu.value.trim(),partner_class:fclass.value.trim(),primary_category:fp.value.trim(),secondary_category:fs.value.trim(),audit_outcome:fa.value,data_centre_experience:fd.value,hq_base:fh.value.trim(),countries:A(fco.value),evidenced_coverage:fcoverage.value.trim()||A(fco.value).join(", "),partner_types:A(ft.value),capability_tags:A(fg.value),capability_summary:fsummary.value.trim(),audit_decision:fdecision.value.trim(),is_active:factive.checked,last_checked:new Date().toISOString().slice(0,10),updated_at:new Date().toISOString()};
+ if(!rec.company)return alert("Company required");
+ saveBtn.disabled=true;saveBtn.textContent="Saving…";
+ let res=editing?await db.from("contractors").update(rec).eq("id",editing):await db.from("contractors").insert(rec);
+ saveBtn.disabled=false;saveBtn.textContent="Save Contractor";
+ if(res.error)return alert(res.error.message);
+ back.classList.remove("open");adminMsg.innerHTML=`<div class="success">${esc(rec.company)} saved successfully.</div>`;await load();await adminLoad()
+};
+load();
+</script></body></html>
