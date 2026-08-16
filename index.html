@@ -1,0 +1,915 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Partniva — Connecting Projects. Powering Partnerships.</title>
+<meta name="theme-color" content="#071126">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./config.js"></script>
+<style>
+:root{
+  --navy:#071126;--ink:#11182a;--muted:#697286;--line:#e7eaf1;
+  --bg:#f7f8fb;--purple:#8158ef;--cyan:#18bfd0;--green:#20a25f;
+  --shadow:0 12px 32px rgba(13,20,41,.08)
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.shell{width:min(1400px,calc(100% - 36px));margin:auto}
+
+.top{height:82px;background:var(--navy);color:#fff}
+.nav{height:100%;display:flex;align-items:center;gap:24px}
+.logo{font-size:38px;font-weight:950;background:linear-gradient(#8658ef,#17bfd0);-webkit-background-clip:text;color:transparent;cursor:pointer}
+.brand{cursor:pointer}.brand b{font-size:28px}.brand small{display:block;color:#d7ddea}
+.spacer{flex:1}.nav button{border:0;background:transparent;color:#fff}
+.adminBtn{padding:10px 14px!important;border-radius:9px!important;background:linear-gradient(90deg,#7658ef,#16bdd0)!important;font-weight:800}
+
+.hero{background:#fff;padding:46px 0 34px}
+.hero h1{font-size:42px;margin:0 0 10px}
+.grad{background:linear-gradient(90deg,#8658ef,#18bfd0);-webkit-background-clip:text;color:transparent}
+.hero p{color:var(--muted);max-width:760px;line-height:1.5}
+.page{display:none}.page.active{display:block}
+
+.tabs{display:flex;gap:6px;margin-top:18px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px;width:max-content;max-width:100%;overflow:auto}
+.regionTabs{display:flex;gap:6px;margin-top:18px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px;width:max-content;max-width:100%;overflow:auto}
+.region{border:0;background:transparent;padding:10px 16px;border-radius:8px;font-weight:800}
+.region.active{background:linear-gradient(90deg,#7658ef,#16bdd0);color:#fff}
+.country{border:0;background:transparent;padding:9px 13px;border-radius:8px}
+.country.active{background:var(--navy);color:#fff}
+.countryTabsWrap{display:block}
+.countryTabsWrap.hidden{display:none}
+.comingSoon{grid-column:1/-1;background:linear-gradient(135deg,#f3efff,#e9fbfd);border:1px solid #d8d6f5;border-radius:14px;padding:34px;text-align:center}
+.comingSoon b{display:block;font-size:24px;margin-bottom:8px}
+.comingSoon span{color:var(--muted);font-size:13px}
+
+.searchWrap{padding-bottom:26px}
+.search{margin-top:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;grid-template-columns:2fr 1fr auto;gap:9px;box-shadow:var(--shadow)}
+.search input,.search select{border:1px solid #dce1e9;border-radius:8px;padding:10px;background:#fff}
+.btn{border:1px solid #d7dde6;background:#fff;border-radius:8px;padding:9px 12px;font-weight:700}
+.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+.resultsArea{display:none;padding-bottom:42px}
+.resultsArea.active{display:block}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.metric{background:#fff;border:1px solid var(--line);border-radius:11px;padding:13px}
+.metric b{font-size:22px;display:block}.metric span{font-size:11px;color:var(--muted)}
+.head{display:flex;justify-content:space-between;align-items:center}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:17px;display:flex;flex-direction:column;box-shadow:0 4px 18px rgba(13,20,41,.04)}
+.cardTop{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.card h3{margin:0;font-size:18px;line-height:1.25}
+.cardMeta{font-size:11px;color:var(--muted);margin-top:5px}
+.status{font-size:10px;font-weight:800;padding:6px 8px;border-radius:999px;background:#e8f8ed;color:#15834c;white-space:nowrap}
+.summary{font-size:13px;line-height:1.55;color:#4f5a6f;margin:14px 0 12px}
+.capLabel{font-size:12px;font-weight:850;color:var(--ink);margin:2px 0 7px}
+.capList{margin:0;padding-left:18px;color:#4f5a6f;font-size:12px;line-height:1.55}
+.capList li{margin:3px 0}
+.resultHead{margin-top:16px}
+.resultHead h2{margin-bottom:4px}
+.resultMeta{font-size:12px;color:var(--muted)}
+.foot{border-top:1px solid #edf0f3;margin-top:14px;padding-top:11px;font-size:11px;display:flex;gap:8px;align-items:center}
+.foot a{color:#4167dc;text-decoration:none;font-weight:700}.foot a:hover{text-decoration:underline}
+.foot .btn{margin-left:auto}
+.empty{grid-column:1/-1;background:#fff;border:1px dashed #cad2dc;border-radius:11px;padding:40px;text-align:center;color:var(--muted)}
+
+.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;margin:20px 0;box-shadow:var(--shadow)}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:9px}.form input{border:1px solid #dce1e9;border-radius:8px;padding:10px}.full{grid-column:1/-1}
+.memberMenu{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.memberTile{border:1px solid var(--line);border-radius:10px;padding:16px;background:#fafbfe}.memberTile b{display:block}.memberTile span{font-size:11px;color:var(--muted)}
+
+.footer{background:#071126;color:#fff;margin-top:40px}
+.footerMain{padding:34px 0 26px;display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:28px}
+.footerBrand b{font-size:24px}.footerBrand p{color:#aeb7ca;line-height:1.55;font-size:13px;max-width:360px}
+.footerCol h4{margin:0 0 10px;font-size:13px}
+.footerCol a{display:block;color:#cbd3e1;text-decoration:none;font-size:13px;margin:8px 0}
+.footerCol a:hover{color:#fff}
+.footerBottom{border-top:1px solid rgba(255,255,255,.12);padding:14px 0 18px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;color:#aeb7ca;font-size:11px}
+.footerBottom a{color:#aeb7ca;text-decoration:none}.footerBottom a:hover{color:#fff}
+.footerBottom .push{margin-left:auto}
+
+@media(max-width:900px){
+  .grid{grid-template-columns:1fr 1fr}.search{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:1fr 1fr}
+  .footerMain{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  .grid,.search,.form{grid-template-columns:1fr}.full{grid-column:1}.hero h1{font-size:32px}.brand small{display:none}
+  .metrics{grid-template-columns:1fr 1fr}.memberMenu{grid-template-columns:1fr}.footerMain{grid-template-columns:1fr}
+  .footerBottom .push{margin-left:0;width:100%}
+}
+
+.adminHead{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.adminTools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.adminTools input{border:1px solid #dce1e9;border-radius:8px;padding:9px;min-width:240px}
+.adminStats{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0;color:var(--muted);font-size:12px}
+.adminStats b{color:var(--ink)}
+.notice{background:#fff4d8;color:#7b5300;padding:10px;border-radius:8px;margin:10px 0}
+.memberGate{background:linear-gradient(135deg,#f3efff,#e9fbfd);border:1px solid #d8d6f5;border-radius:14px;padding:28px;text-align:center;margin:16px 0}
+.memberGate b{display:block;font-size:22px;margin-bottom:8px}
+.memberGate p{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.55}
+.success{background:#eaf8ef;color:#16764a;padding:10px;border-radius:8px;margin:10px 0}
+.table{width:100%;border-collapse:collapse;font-size:12px}
+.table th,.table td{padding:8px;border-bottom:1px solid #edf0f3;text-align:left}
+.coverageWrap{border-top:1px solid var(--line);margin-top:18px;padding-top:14px}
+.coverageScroll{overflow:auto}
+.coverage{width:100%;min-width:900px;border-collapse:collapse;font-size:10px}
+.coverage th,.coverage td{border:1px solid #edf0f3;padding:6px;text-align:center}
+.coverage th:first-child,.coverage td:first-child{text-align:left}
+.coverage .ok{background:#eaf8ef;color:#16764a;font-weight:800}
+.coverage .gap{background:#fff4d8;color:#7b5300;font-weight:800}
+.modalBack{display:none;position:fixed;inset:0;background:rgba(7,17,38,.65);z-index:1000;padding:20px;overflow:auto}
+.modalBack.open{display:block}
+.modal{width:min(800px,100%);margin:30px auto;background:#fff;border-radius:14px;padding:22px;box-shadow:var(--shadow)}
+.formGroup label{display:block;font-size:12px;font-weight:800;margin-bottom:5px}
+.formGroup input,.formGroup select,.formGroup textarea{width:100%;border:1px solid #dce1e9;border-radius:8px;padding:10px;background:#fff}
+.formGroup textarea{min-height:90px;resize:vertical}
+.sectionTitle{grid-column:1/-1;font-size:12px;font-weight:900;color:var(--navy);border-bottom:1px solid var(--line);padding:8px 0 4px;margin-top:6px}
+.hint{display:block;font-size:10px;color:var(--muted);margin-bottom:4px}
+
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="shell nav">
+    <div class="logo" id="logoHome">P</div>
+    <div class="brand" id="brandHome"><b>Partniva</b><small>Connecting Projects. Powering Partnerships.</small></div>
+    <div class="spacer"></div>
+    <button id="findNav">Find Partners</button>
+    <button id="shortNav">Shortlist</button>
+    <button class="adminBtn" id="adminNav">Sign In</button>
+  </div>
+</header>
+
+<section class="page active" id="findPage">
+  <div class="hero">
+    <div class="shell">
+      <h1>Find the right <span class="grad">partners.</span><br>Deliver your <span class="grad">projects.</span></h1>
+      <p>Verified partner discovery for the global data centre market.</p>
+    </div>
+  </div>
+
+  <main class="shell">
+    <div class="searchWrap">
+      <div class="regionTabs" id="regionTabs"></div>
+      <div class="countryTabsWrap" id="countryTabsWrap">
+        <div class="search" style="margin-top:10px;grid-template-columns:1fr">
+          <select id="countrySelect"></select>
+        </div>
+      </div>
+      <div class="search">
+        <input id="q" placeholder="Search company, pipework, DLC, commissioning…">
+        <select id="type"><option value="">All Partner Types</option></select>
+        <button class="btn primary" id="searchBtn">Search</button>
+      </div>
+    </div>
+
+    <div class="resultsArea" id="resultsArea">
+      <div class="head resultHead">
+        <div>
+          <h2 id="found"></h2>
+          <div class="resultMeta"><span id="count">0 results</span> · <span id="saved">0 shortlisted</span></div>
+          <span id="verified" style="display:none"></span>
+        </div>
+        <button class="btn" id="clear">Clear</button>
+      </div>
+      <div class="grid" id="grid"></div>
+    </div>
+  </main>
+</section>
+
+<section class="page" id="shortPage">
+  <main class="shell"><div class="panel"><h1>Shortlist</h1><div class="grid" id="shortGrid"></div></div></main>
+</section>
+
+<section class="page" id="adminPage">
+  <main class="shell">
+
+    <div class="panel" id="loginPanel">
+      <h1>Sign in to Partniva</h1>
+      <p style="color:var(--muted)">Access your Partniva account. Administrator accounts also receive contractor-management access.</p>
+      <div id="setupNotice"></div>
+      <div class="form" style="max-width:440px">
+        <div class="formGroup"><label>Email address</label><input id="email" type="email" placeholder="you@company.com"></div>
+        <div class="formGroup"><label>Password</label><input id="password" type="password" placeholder="Password"></div>
+        <button class="btn primary full" id="loginBtn">Sign in</button>
+      </div>
+    </div>
+
+    <div class="panel" id="memberPanel" style="display:none">
+      <div class="adminHead">
+        <div><h1>My Partniva</h1><small id="memberWho"></small></div>
+        <button class="btn" id="memberLogout">Sign out</button>
+      </div>
+
+      <div class="memberMenu">
+        <div class="memberTile"><b>My Profile</b><span>Company and account details.</span></div>
+        <div class="memberTile"><b>Subscription</b><span>Plan and billing management.</span></div>
+        <div class="memberTile"><b>Messages</b><span>Partner and project conversations.</span></div>
+      </div>
+
+      <div id="adminEntry" style="display:none;margin-top:14px">
+        <button class="btn primary" id="openAdmin">Open Contractor Admin</button>
+      </div>
+    </div>
+
+    <div class="panel" id="adminPanel" style="display:none">
+      <div class="adminHead">
+        <div><h1>Contractor Admin</h1><small id="who"></small></div>
+        <div>
+          <button class="btn" id="backAccount">My Account</button>
+          <button class="btn" id="logout">Sign out</button>
+        </div>
+      </div>
+
+      <div id="adminMsg"></div>
+
+      <div class="adminStats">
+        <span><b id="adminTotal">0</b> contractors</span>
+        <span><b id="adminActive">0</b> active</span>
+        <span><b id="adminClaims">0</b> verified claims</span>
+        <span><b id="coverageGaps">0</b> coverage gaps</span>
+      </div>
+
+      <div class="adminTools">
+        <input id="adminSearch" placeholder="Search contractors…">
+        <button class="btn primary" id="add">+ Add Contractor</button>
+      </div>
+
+      <div style="overflow:auto;margin-top:12px">
+        <table class="table">
+          <thead>
+            <tr><th>Company</th><th>Primary</th><th>Status</th><th>Countries</th><th>Active</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+
+      <div class="coverageWrap">
+        <h2>Country × Partner Type Coverage</h2>
+        <div class="coverageScroll">
+          <table class="coverage">
+            <thead id="coverageHead"></thead>
+            <tbody id="coverageBody"></tbody>
+          </table>
+        </div>
+        <p style="font-size:11px;color:var(--muted)">Target: minimum 10 verified partners per partner type, per country.</p>
+      </div>
+    </div>
+
+  </main>
+</section>
+
+<div class="modalBack" id="back">
+  <div class="modal">
+    <div class="adminHead">
+      <h2 id="title">Add Contractor</h2>
+      <button class="btn" id="close">×</button>
+    </div>
+
+    <div class="form">
+      <div class="sectionTitle">Company & evidence</div>
+      <div class="formGroup"><label>Company name *</label><input id="fc"></div>
+      <div class="formGroup"><label>Evidence / source URL</label><input id="fu" placeholder="https://..."></div>
+      <div class="formGroup"><label>Partner class</label><input id="fclass"></div>
+      <div class="formGroup"><label>Verification status</label><select id="fa"><option>Verified</option></select></div>
+      <div class="formGroup full"><label>Audit decision</label><textarea id="fdecision"></textarea></div>
+
+      <div class="sectionTitle">Scope & classification</div>
+      <div class="formGroup"><label>Primary category</label><input id="fp"></div>
+      <div class="formGroup"><label>Secondary category</label><input id="fs"></div>
+      <div class="formGroup full"><label>Partner types</label><span class="hint">Comma separated.</span><input id="ft"></div>
+      <div class="formGroup full"><label>Capability tags</label><span class="hint">Comma separated.</span><input id="fg"></div>
+      <div class="formGroup full"><label>Capability summary</label><textarea id="fsummary"></textarea></div>
+
+      <div class="sectionTitle">Geography & experience</div>
+      <div class="formGroup"><label>Data centre experience</label><select id="fd"><option>Unknown</option><option>Yes</option><option>No</option></select></div>
+      <div class="formGroup"><label>HQ / base</label><input id="fh"></div>
+      <div class="formGroup full"><label>Countries served</label><span class="hint">Comma separated.</span><input id="fco"></div>
+      <div class="formGroup full"><label>Evidenced coverage</label><input id="fcoverage"></div>
+
+      <div class="sectionTitle">Publication</div>
+      <label class="full"><input type="checkbox" id="factive" checked> Active / public</label>
+      <button class="btn primary full" id="saveBtn">Save Contractor</button>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="shell footerMain">
+    <div class="footerBrand">
+      <b>Partniva</b>
+      <p>Connecting data centre projects with verified delivery partners across Europe.</p>
+    </div>
+
+    <div class="footerCol">
+      <h4>Company</h4>
+      <a href="./who-we-are.html">Who we are</a>
+      <a href="./verify-your-business.html">Get your business verified</a>
+    </div>
+
+    <div class="footerCol">
+      <h4>Support</h4>
+      <a href="./contact.html">Contact us</a>
+      <a href="./help.html">Help & support</a>
+    </div>
+
+    <div class="footerCol">
+      <h4>Partners</h4>
+      <a href="#" id="footerFind">Find partners</a>
+      <a href="#" id="footerShortlist">Shortlist</a>
+      <a href="#" id="footerSignIn">Sign in</a>
+    </div>
+  </div>
+
+  <div class="shell footerBottom">
+    <span>© 2026 Partniva</span>
+    <a href="#privacy">Privacy notice</a>
+    <a href="#cookies">Cookie settings</a>
+    <a href="#terms">Terms of use</a>
+    <a href="#provider">Provider information</a>
+    <span class="push">Connecting Projects. Powering Partnerships.</span>
+  </div>
+</footer>
+
+<script>
+const C=window.PARTNIVA_CONFIG||{};
+const configured=!!(C.supabaseUrl&&C.supabaseKey&&!C.supabaseUrl.includes("PASTE_")&&!C.supabaseKey.includes("PASTE_"));
+const db=configured?supabase.createClient(C.supabaseUrl,C.supabaseKey):null;
+
+const REGIONS=["Europe","North America","APAC","Middle East","Africa"];
+const COUNTRIES=["Portugal","Spain","France","Italy","Germany","Netherlands"];
+const TYPES=["Mechanical","Electrical","HVAC & Cooling","DLC / Liquid Cooling","Flushing & Water Treatment","Commissioning","ICT / Fibre","Fire Systems","BMS & Controls","Plant & Equipment Hire","Wholesalers / Supply Chain","Load Banks & Temporary Power","Logistics & Lifting","CSA / General Construction","Design & Engineering","Testing & Inspection"];
+
+let rows=[];
+let region="Europe";
+let country="Portugal";
+let hasSearched=false;
+let isAdmin=false;
+let adminRows=[];
+let adminClaims=[];
+let editing=null;
+let currentUserSession=null;
+let pendingMemberAction=null;
+let shortlist=new Set(JSON.parse(localStorage.getItem("partniva-v4-shortlist")||"[]"));
+
+const $=id=>document.getElementById(id);
+const norm=v=>(v??"").toString().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\s+/g," ").trim();
+const esc=v=>(v??"").toString().replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+const firstSource=v=>(v||"").split(";").map(x=>x.trim()).find(x=>/^https?:\/\//i.test(x))||"";
+
+function customerSummary(value){
+  let s=(value||"").trim();
+
+  // Remove internal audit prefixes and notes that are useful to Partniva,
+  // but not appropriate for customer-facing contractor cards.
+  s=s.replace(/^REVERIFIED:\s*/i,"");
+  s=s.replace(/^KEEP:\s*/i,"");
+  s=s.replace(/^Existing official supplier source retained because the audited scope is explicit\s*/i,"");
+  s=s.replace(/^Existing company-specific source claim retained after source-level re-audit; unsupported fields remain Unknown\.?\s*/i,"");
+  s=s.replace(/^Claim-level cross-border rule after re-audit:\s*/i,"");
+
+  // Remove internal verification language and "unknown" audit-state commentary.
+  s=s.replace(/\s*Data Centre Experience remains Unknown\.?/gi,"");
+  s=s.replace(/\s*Capability and [^.]* are evidenced\.?/gi,"");
+  s=s.replace(/\s*Canonical audit[^.]*\.?/gi,"");
+  s=s.replace(/\s*geography is separate from the capability decision\.?/gi,"");
+
+  // Tidy common audit wording.
+  s=s.replace(/retained categories for [^:]+:\s*/i,"");
+  s=s.replace(/audited scope explicitly identifies\s*/i,"");
+  s=s.replace(/\s*\([^)]*\)\.?$/,"");
+  s=s.replace(/\s+/g," ").trim();
+
+  if(!s) return "Verified specialist partner for this market and capability.";
+  return s;
+}
+
+function show(id){
+  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+  $(id).classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function resetSearch(){
+  region="Europe";
+  country="Portugal";
+  $("q").value="";
+  $("type").value="";
+  hasSearched=false;
+  $("resultsArea").classList.remove("active");
+  $("grid").innerHTML="";
+  $("found").textContent="";
+  $("count").textContent="0 results";
+  $("verified").textContent="0";
+  document.querySelectorAll("[data-r]").forEach(x=>x.classList.toggle("active",x.dataset.r==="Europe"));
+  $("countrySelect").value="Portugal";
+  $("countryTabsWrap").classList.remove("hidden");
+  show("findPage");
+}
+
+$("findNav").onclick=resetSearch;
+$("logoHome").onclick=resetSearch;
+$("brandHome").onclick=resetSearch;
+$("shortNav").onclick=async()=>{
+  if(!(await requireMember("shortlist"))) return;
+  show("shortPage");
+  renderShort();
+};
+$("adminNav").onclick=()=>{show("adminPage");session()};
+
+REGIONS.forEach(r=>$("regionTabs").insertAdjacentHTML("beforeend",`<button class="region ${r==="Europe"?"active":""}" data-r="${r}">${r}</button>`));
+COUNTRIES.forEach(c=>$("countrySelect").insertAdjacentHTML("beforeend",`<option value="${c}" ${c==="Portugal"?"selected":""}>${c}</option>`));
+TYPES.forEach(t=>$("type").insertAdjacentHTML("beforeend",`<option>${esc(t)}</option>`));
+
+document.querySelectorAll("[data-r]").forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll("[data-r]").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    region=b.dataset.r;
+    $("countryTabsWrap").classList.toggle("hidden",region!=="Europe");
+
+    if(hasSearched){
+      if(region==="Europe") executeSearch();
+      else showComingSoon();
+    }
+  };
+});
+
+$("countrySelect").addEventListener("change",()=>{ country=$("countrySelect").value; if(hasSearched&&region==="Europe") executeSearch(); });
+
+async function loadDirectory(){
+  if(!configured) return false;
+  if(rows.length) return true;
+
+  const {data,error}=await db
+    .from("verified_contractor_directory")
+    .select("*")
+    .order("company");
+
+  if(error){
+    console.error("Verified directory load error:",error);
+    return false;
+  }
+
+  rows=data||[];
+  return true;
+}
+
+async function requireMember(action){
+  if(!configured){
+    show("adminPage");
+    $("setupNotice").innerHTML='<div class="notice">Partniva sign-in is not configured yet.</div>';
+    return false;
+  }
+
+  const {data:{session},error}=await db.auth.getSession();
+  if(error) console.error(error);
+
+  currentUserSession=session||null;
+
+  if(!session){
+    pendingMemberAction=action;
+    show("adminPage");
+    $("setupNotice").innerHTML=
+      '<div class="memberGate"><b>Sign in to access Partniva</b><p>Verified partner results, contractor details, verification sources and shortlists are available to Partniva members.</p></div>';
+    $("email").focus();
+    return false;
+  }
+
+  const loaded=await loadDirectory();
+  if(!loaded){
+    show("adminPage");
+    $("setupNotice").innerHTML='<div class="notice">We could not load the verified partner directory. Please try again.</div>';
+    return false;
+  }
+
+  return true;
+}
+
+function companiesForCountry(){
+  const map=new Map();
+  rows.filter(x=>norm(x.verified_country)===norm(country)).forEach(x=>{
+    const key=norm(x.company);
+    if(!map.has(key)) map.set(key,{...x,claims:[]});
+    map.get(key).claims.push(x);
+  });
+  return [...map.values()];
+}
+
+function filtered(){
+  const tokens=norm($("q").value).split(" ").filter(Boolean);
+  const type=$("type").value;
+
+  return companiesForCountry().filter(r=>{
+    if(type&&!r.claims.some(x=>x.verified_category===type)) return false;
+    if(tokens.length){
+      const hay=norm([
+        r.company,r.partner_class,r.primary_category,r.secondary_category,r.hq_base,r.audit_decision,
+        r.claims.map(x=>x.verified_category).join(" "),
+        r.claims.map(x=>x.claim_capability_evidence).join(" "),
+        r.claims.map(x=>x.claim_geography_evidence).join(" ")
+      ].join(" "));
+      if(!tokens.every(t=>hay.includes(t))) return false;
+    }
+    return true;
+  });
+}
+
+function capabilityBullets(r,claim){
+  const raw=[
+    ...(r.claims||[]).map(x=>x.verified_category),
+    r.primary_category,
+    r.secondary_category,
+    ...(Array.isArray(r.partner_types)?r.partner_types:[]),
+    ...(Array.isArray(r.capability_tags)?r.capability_tags:[])
+  ].filter(Boolean);
+
+  const seen=new Set();
+  const out=[];
+
+  raw.forEach(v=>{
+    String(v).split(/[,;|]/).forEach(part=>{
+      let s=part.trim();
+      if(!s) return;
+      const n=norm(s);
+      if(n==="unknown" || n==="verified") return;
+      if(!seen.has(n)){
+        seen.add(n);
+        out.push(s);
+      }
+    });
+  });
+
+  return out.slice(0,5);
+}
+
+function card(r){
+  const selected=$("type").value;
+  const claim=(selected&&r.claims.find(x=>x.verified_category===selected))||r.claims[0];
+  const source=firstSource(claim?.claim_source_url)||firstSource(r.source_url);
+  const summary=customerSummary(claim?.claim_capability_evidence||r.capability_summary);
+  const location=r.hq_base ? `${r.hq_base} · ${country}` : country;
+  const dcYes=norm(r.data_centre_experience)==="yes";
+  const bullets=capabilityBullets(r,claim);
+
+  return `<article class="card">
+    <div class="cardTop">
+      <div>
+        <h3>${esc(r.company)}</h3>
+        <div class="cardMeta">${esc(location)}${dcYes?" · Data centre experience":""}</div>
+      </div>
+      <span class="status">✓ Verified</span>
+    </div>
+
+    <div class="summary">${esc(summary)}</div>
+
+    ${bullets.length?`
+      <div class="capLabel">Key capabilities</div>
+      <ul class="capList">${bullets.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+    `:""}
+
+    <div class="foot">
+      ${source?`<a href="${esc(source)}" target="_blank" rel="noopener">View verification source ↗</a>`:""}
+      <button class="btn" data-save="${esc(r.id)}">${shortlist.has(String(r.id))?"★ Saved":"☆ Shortlist"}</button>
+    </div>
+  </article>`;
+}
+
+function wire(){
+  document.querySelectorAll("[data-save]").forEach(b=>b.onclick=()=>{
+    const id=String(b.dataset.save);
+    shortlist.has(id)?shortlist.delete(id):shortlist.add(id);
+    localStorage.setItem("partniva-v4-shortlist",JSON.stringify([...shortlist]));
+    if(hasSearched) executeSearch();
+    renderShort();
+  });
+}
+
+function showComingSoon(){
+  hasSearched=true;
+  $("resultsArea").classList.add("active");
+  $("count").textContent="0 results";
+  $("verified").textContent="0";
+  $("saved").textContent=`${shortlist.size} shortlisted`;
+  $("found").textContent=`${region} partner discovery`;
+  $("grid").innerHTML=`<div class="comingSoon"><b>${esc(region)} — Coming Soon</b><span>Partniva partner discovery for ${esc(region)} is being prepared. Europe is available now.</span></div>`;
+}
+
+async function executeSearch(){
+  if(!(await requireMember("search"))) return;
+
+  if(region!=="Europe"){
+    showComingSoon();
+    return;
+  }
+
+  const hasQuery=norm($("q").value).length>0;
+  const hasType=$("type").value!=="";
+
+  if(!hasQuery&&!hasType){
+    hasSearched=false;
+    $("resultsArea").classList.remove("active");
+    $("grid").innerHTML="";
+    return;
+  }
+
+  hasSearched=true;
+  const r=filtered();
+  $("resultsArea").classList.add("active");
+  $("count").textContent=`${r.length} results`;
+  $("verified").textContent=r.length;
+  $("saved").textContent=`${shortlist.size} shortlisted`;
+  $("found").textContent=`${r.length} verified partners found`;
+  $("grid").innerHTML=r.length?r.map(card).join(""):'<div class="empty">No matching verified partners.</div>';
+  wire();
+}
+
+function renderShort(){
+  const allCompanies=new Map();
+  rows.forEach(x=>{
+    const k=norm(x.company);
+    if(!allCompanies.has(k)) allCompanies.set(k,{...x,claims:[]});
+    allCompanies.get(k).claims.push(x);
+  });
+  const r=[...allCompanies.values()].filter(x=>shortlist.has(String(x.id)));
+  $("shortGrid").innerHTML=r.length?r.map(card).join(""):'<div class="empty">Your shortlist is empty.</div>';
+  wire();
+}
+
+$("searchBtn").onclick=executeSearch;
+
+$("q").addEventListener("keydown",e=>{
+  if(e.key==="Enter") executeSearch();
+});
+
+$("clear").onclick=resetSearch;
+
+async function session(){
+  $("setupNotice").innerHTML=configured?"":'<div class="notice">Complete config.js first.</div>';
+  if(!configured) return;
+
+  const {data:{session},error}=await db.auth.getSession();
+  if(error) console.error(error);
+
+  currentUserSession=session||null;
+
+  if(!session){
+    isAdmin=false;
+    rows=[];
+    $("adminNav").textContent="Sign In";
+    $("loginPanel").style.display="block";
+    $("memberPanel").style.display="none";
+    $("adminPanel").style.display="none";
+    return;
+  }
+
+  $("adminNav").textContent="Account";
+  await loadDirectory();
+  $("loginPanel").style.display="none";
+  $("memberPanel").style.display="block";
+  $("adminPanel").style.display="none";
+  $("memberWho").textContent=session.user.email;
+
+  const {data:admin,error:adminError}=await db
+    .from("admins")
+    .select("user_id")
+    .eq("user_id",session.user.id)
+    .maybeSingle();
+
+  if(adminError) console.warn("Admin lookup:",adminError.message);
+
+  isAdmin=!!admin;
+  $("adminEntry").style.display=isAdmin?"block":"none";
+  if(isAdmin) $("who").textContent=session.user.email;
+}
+
+$("loginBtn").onclick=async()=>{
+  if(!configured) return;
+
+  $("loginBtn").disabled=true;
+  $("loginBtn").textContent="Signing in…";
+  $("setupNotice").innerHTML="";
+
+  const {error}=await db.auth.signInWithPassword({
+    email:$("email").value.trim(),
+    password:$("password").value
+  });
+
+  $("loginBtn").disabled=false;
+  $("loginBtn").textContent="Sign in";
+
+  if(error){
+    $("setupNotice").innerHTML=`<div class="notice">${esc(error.message)}</div>`;
+  }else{
+    await session();
+
+    const action=pendingMemberAction;
+    pendingMemberAction=null;
+
+    if(action==="search"){
+      show("findPage");
+      await executeSearch();
+    }else if(action==="shortlist"){
+      show("shortPage");
+      renderShort();
+    }
+  }
+};
+
+async function signOutAll(){
+  if(db) await db.auth.signOut();
+  isAdmin=false;
+  currentUserSession=null;
+  rows=[];
+  pendingMemberAction=null;
+  $("adminNav").textContent="Sign In";
+  resetSearch();
+  await session();
+}
+
+$("logout").onclick=signOutAll;
+$("memberLogout").onclick=signOutAll;
+$("backAccount").onclick=()=>{
+  $("adminPanel").style.display="none";
+  $("memberPanel").style.display="block";
+};
+
+$("openAdmin").onclick=async()=>{
+  if(!isAdmin) return;
+  $("memberPanel").style.display="none";
+  $("adminPanel").style.display="block";
+  await adminLoad();
+};
+
+function adminRender(){
+  const qq=norm($("adminSearch").value);
+
+  const data=adminRows.filter(r=>{
+    const countries=Array.isArray(r.countries)?r.countries:[];
+    const types=Array.isArray(r.partner_types)?r.partner_types:[];
+    return !qq || norm([
+      r.company,r.primary_category,r.secondary_category,
+      countries.join(" "),types.join(" ")
+    ].join(" ")).includes(qq);
+  });
+
+  $("adminTotal").textContent=adminRows.length;
+  $("adminActive").textContent=adminRows.filter(x=>x.is_active).length;
+  $("adminClaims").textContent=adminClaims.length;
+
+  $("rows").innerHTML=data.map(r=>{
+    const countries=Array.isArray(r.countries)?r.countries:[];
+    return `<tr>
+      <td>${esc(r.company)}</td>
+      <td>${esc(r.primary_category||"")}</td>
+      <td>${esc(r.audit_outcome||"")}</td>
+      <td>${esc(countries.join(", "))}</td>
+      <td>${r.is_active?"Yes":"No"}</td>
+      <td><button class="btn" data-edit="${esc(r.id)}">Edit</button></td>
+    </tr>`;
+  }).join("") || '<tr><td colspan="6">No matching contractors.</td></tr>';
+
+  document.querySelectorAll("[data-edit]").forEach(b=>{
+    b.onclick=()=>editor(adminRows.find(x=>String(x.id)===String(b.dataset.edit)));
+  });
+
+  renderCoverage();
+}
+
+function renderCoverage(){
+  const target=10;
+  let gaps=0;
+
+  $("coverageHead").innerHTML=
+    `<tr><th>Partner type</th>${COUNTRIES.map(c=>`<th>${esc(c)}</th>`).join("")}</tr>`;
+
+  $("coverageBody").innerHTML=TYPES.map(t=>`<tr>
+    <td>${esc(t)}</td>
+    ${COUNTRIES.map(c=>{
+      const n=new Set(
+        adminClaims
+          .filter(x=>norm(x.country)===norm(c)&&x.category===t)
+          .map(x=>norm(x.company))
+      ).size;
+      if(n<target) gaps++;
+      return `<td class="${n>=target?"ok":"gap"}">${n}</td>`;
+    }).join("")}
+  </tr>`).join("");
+
+  $("coverageGaps").textContent=gaps;
+}
+
+async function adminLoad(){
+  const [contractorRes,claimRes]=await Promise.all([
+    db.from("contractors").select("*").order("company"),
+    db.from("contractor_claims")
+      .select("company,country,category")
+      .eq("is_active",true)
+      .eq("audit_outcome","Verified")
+  ]);
+
+  if(contractorRes.error){
+    $("adminMsg").innerHTML=`<div class="notice">${esc(contractorRes.error.message)}</div>`;
+    return;
+  }
+
+  adminRows=contractorRes.data||[];
+  adminClaims=claimRes.error?[]:(claimRes.data||[]);
+  adminRender();
+}
+
+$("adminSearch").addEventListener("input",adminRender);
+
+function commaList(v){
+  return (v||"").split(",").map(x=>x.trim()).filter(Boolean);
+}
+
+function editor(r=null){
+  editing=r?.id||null;
+  $("title").textContent=r?"Edit Contractor":"Add Contractor";
+  $("fc").value=r?.company||"";
+  $("fu").value=r?.source_url||"";
+  $("fclass").value=r?.partner_class||"";
+  $("fp").value=r?.primary_category||"";
+  $("fs").value=r?.secondary_category||"";
+  $("fa").value="Verified";
+  $("fd").value=r?.data_centre_experience||"Unknown";
+  $("fh").value=r?.hq_base||"";
+  $("fco").value=(Array.isArray(r?.countries)?r.countries:[]).join(", ");
+  $("fcoverage").value=r?.evidenced_coverage||"";
+  $("ft").value=(Array.isArray(r?.partner_types)?r.partner_types:[]).join(", ");
+  $("fg").value=(Array.isArray(r?.capability_tags)?r.capability_tags:[]).join(", ");
+  $("fsummary").value=r?.capability_summary||"";
+  $("fdecision").value=r?.audit_decision||"";
+  $("factive").checked=r?.is_active??true;
+  $("back").classList.add("open");
+}
+
+$("add").onclick=()=>editor();
+$("close").onclick=()=>$("back").classList.remove("open");
+
+$("saveBtn").onclick=async()=>{
+  if(!isAdmin) return;
+
+  const rec={
+    company:$("fc").value.trim(),
+    source_url:$("fu").value.trim(),
+    partner_class:$("fclass").value.trim(),
+    primary_category:$("fp").value.trim(),
+    secondary_category:$("fs").value.trim(),
+    audit_outcome:"Verified",
+    data_centre_experience:$("fd").value,
+    hq_base:$("fh").value.trim(),
+    countries:commaList($("fco").value),
+    evidenced_coverage:$("fcoverage").value.trim()||commaList($("fco").value).join("; "),
+    partner_types:commaList($("ft").value),
+    capability_tags:commaList($("fg").value),
+    capability_summary:$("fsummary").value.trim(),
+    audit_decision:$("fdecision").value.trim(),
+    is_active:$("factive").checked,
+    last_checked:new Date().toISOString().slice(0,10),
+    updated_at:new Date().toISOString()
+  };
+
+  if(!rec.company) return alert("Company required");
+
+  $("saveBtn").disabled=true;
+  $("saveBtn").textContent="Saving…";
+
+  const res=editing
+    ? await db.from("contractors").update(rec).eq("id",editing)
+    : await db.from("contractors").insert(rec);
+
+  $("saveBtn").disabled=false;
+  $("saveBtn").textContent="Save Contractor";
+
+  if(res.error) return alert(res.error.message);
+
+  $("back").classList.remove("open");
+  $("adminMsg").innerHTML=`<div class="success">${esc(rec.company)} saved successfully.</div>`;
+  await load();
+  await adminLoad();
+};
+
+$("footerFind").onclick=e=>{e.preventDefault();resetSearch()};
+$("footerShortlist").onclick=async e=>{
+  e.preventDefault();
+  if(!(await requireMember("shortlist"))) return;
+  show("shortPage");
+  renderShort();
+};
+$("footerSignIn").onclick=e=>{e.preventDefault();show("adminPage");session()};
+
+if(db){
+  db.auth.onAuthStateChange(()=>{
+    session();
+  });
+}
+
+session();
+</script>
+</body>
+</html>
