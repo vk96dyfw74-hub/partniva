@@ -68,7 +68,7 @@ document.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{document.querySe
 
 async function load(){
  if(!configured){grid.innerHTML='<div class="empty"><b>Supabase setup required.</b><br>Complete config.js.</div>';return}
- const {data,error}=await db.from("contractors").select("*").eq("is_active",true).order("company");
+ const {data,error}=await db.from("contractors").select("*")("is_active",true).order("company");
  if(error){grid.innerHTML=`<div class="empty">${esc(error.message)}</div>`;return}
  all=data||[];render()
 }
